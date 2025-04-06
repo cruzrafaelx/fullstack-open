@@ -24,7 +24,7 @@ sequenceDiagram
 
    note right of browser: the browser fetches and executes the JS file, which fetches the JSON file
 
-  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+  browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
     activate server
     server-->>browser: JSON file // [{content: "hello there!!", date: "2025-04-05T13:00:19.161Z"},…]
     deactivate server
