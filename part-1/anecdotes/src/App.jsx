@@ -16,6 +16,9 @@ function App() {
 
   const [selected, setSelected] = useState(0)
   const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+  const [highestVote, setHighestVote] = useState(0)
+  const [highestIndex, setHighestIndex] = useState(0)
+  const [highestAnecdote, setHighestAnecdote] = useState()
 
  
   const randomNumber = () => Math.floor(Math.random() * anecdotes.length)
@@ -23,19 +26,34 @@ function App() {
     setSelected(randomNumber())
   }
   
+ console.log("updated votes", votes)
+ console.log("updated highest votes", highestVote)
+ console.log("updated highest index", highestIndex)
+ console.log("highest anecdote", anecdotes[highestIndex])
+  
   const handleVote = () => {
     const updatedVotes = [...votes]
     updatedVotes[selected] += 1
     setVotes(updatedVotes)
+   
+    const highestVoteNew = Math.max(...updatedVotes)
+    setHighestVote(highestVoteNew)
+   
+    const highestIndexNew = updatedVotes.indexOf(highestVoteNew)
+    setHighestIndex(highestIndexNew)
+
   }
-  
+
+
   return (
     <>
       <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
-      <p>{`This anecdote has ${votes[selected]} votes`}</p>
+      <p>{`This anecdote has ${votes[selected]} vote${votes[selected] === 1 ? "" : "s"}`}</p>
       <button onClick={handleVote}>vote</button>
       <button onClick={handleClick}>anecdote</button>
+      <h1>Anecdote with the most vote</h1>
+      <p>{`${anecdotes[highestIndex]} has ${highestVote} votes`}</p>
     </>
   )
 }
