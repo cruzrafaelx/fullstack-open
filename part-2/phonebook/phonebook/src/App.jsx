@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react'
+import Filter from "./Components/Filter"
+import Form from "./Components/Form"
+import Persons from "./Components/Persons"
 import './App.css'
 
 function App() {
@@ -32,6 +35,7 @@ function App() {
       setNewFilteredList(filterNames(filterValue))
     }
 
+    //Asynchronous log of persons array
     useEffect(() => {
       console.log(persons)
     }, [persons])
@@ -63,30 +67,14 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-      filter: <input value={newFilter} onChange={handleFilterChange}/>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input onChange={handleNameChange} value={newName}/>
-        </div>
-        <div>
-          number: <input onChange={handleNumberChange} value={newNumber}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <Filter value={newFilter} onChange={handleFilterChange}/>
+      <Form onSubmit={handleSubmit} 
+            onChangeName={handleNameChange} 
+            onChangeNum={handleNumberChange}
+            valueName={newName}
+            valueNum={newNumber}/>
       <h2>Numbers</h2>
-      {newFilteredList.map(name => 
-        {
-         return (
-          <div key={name.id}>
-            <p>{name.name}</p>
-            <p>{name.number}</p>
-          </div> )
-        }
-      )}
+      <Persons filter={newFilteredList} />
     </div>
   )
 }
