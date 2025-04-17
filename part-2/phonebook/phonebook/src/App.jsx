@@ -6,16 +6,26 @@ function App() {
     const [persons, setPersons] = useState([
       { name: 'Arto Hellas' }
     ]) 
+    
     const [newName, setNewName] = useState('')
 
     const handleSubmit = (event) => {
       event.preventDefault()
-      const newPerson = [...persons, {name: newName}]
-      setPersons(newPerson)
+      
+      if(persons.some(person => person.name === newName)){
+        alert("This name exists in the phone book already!")
+      } 
+      
+      else{
+        const newPerson = [...persons, {name: newName}]
+        setPersons(newPerson)
+        console.log(persons)
+      }
     }
 
     const handleChange = (event) => {
       setNewName(event.target.value)
+      console.log(event.target.value)
     }
 
   return (
