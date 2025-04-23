@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Filter from "./Components/Filter"
 import Form from "./Components/Form"
 import Persons from "./Components/Persons"
@@ -6,17 +7,22 @@ import './App.css'
 
 function App() {
 
-    const [persons, setPersons] = useState([
-      { name: 'Arto Hellas', number: '040-123456', id: 1 },
-      { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-      { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-      { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-    ]) 
+    const [persons, setPersons] = useState([]) 
 
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [newFilter, setNewFilter] = useState('')
-    const [newFilteredList, setNewFilteredList] = useState([])
+    const [newFilteredList, setNewFilteredList] = useState(persons)
+
+    useEffect(() => {
+      axios
+      .get('http://localhost:3001/persons')
+      .then(res => setPersons(res.data))
+      console.log(persons)
+    }, [persons])
+
+
+    
 
     const handleNameChange = (event) => {
       setNewName(event.target.value)
@@ -36,10 +42,7 @@ function App() {
     }
 
     //Asynchronous log of persons array
-    useEffect(() => {
-      console.log(persons)
-    }, [persons])
-
+    
     const filterNames = (value) => {
       const filteredList = persons.filter(person => person.name.toLowerCase().includes(value))
       return filteredList
