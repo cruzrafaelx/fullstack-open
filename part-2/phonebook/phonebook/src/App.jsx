@@ -8,21 +8,25 @@ import './App.css'
 function App() {
 
     const [persons, setPersons] = useState([]) 
-
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [newFilter, setNewFilter] = useState('')
-    const [newFilteredList, setNewFilteredList] = useState(persons)
+    const [newFilteredList, setNewFilteredList] = useState([])
 
+    //Display initial phonebook, will only render once
+    useEffect(()=> {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(res => setNewFilteredList(res.data))
+    }, [])
+
+    //Fetch phonebook
     useEffect(() => {
       axios
       .get('http://localhost:3001/persons')
       .then(res => setPersons(res.data))
       console.log(persons)
-    }, [persons])
-
-
-    
+    }, [])
 
     const handleNameChange = (event) => {
       setNewName(event.target.value)
@@ -40,8 +44,6 @@ function App() {
       console.log(filterValue)
       setNewFilteredList(filterNames(filterValue))
     }
-
-    //Asynchronous log of persons array
     
     const filterNames = (value) => {
       const filteredList = persons.filter(person => person.name.toLowerCase().includes(value))
@@ -60,8 +62,14 @@ function App() {
       }
       
       else{
-        const newPerson = [...persons, {name: newName, number: newNumber}]
-        setPersons(newPerson)
+        const newPerson = {name: newName, number: newNumber}
+        // const newPerson = [...persons, {name: newName, number: newNumber}]
+        axios
+          .post('http://localhost:3001/persons', newPerson)
+          .then(res => {
+            console.log(res.data)
+            setPersons([...persons, res.data])
+          })
         setNewName('')
         setNewNumber('')
       }
