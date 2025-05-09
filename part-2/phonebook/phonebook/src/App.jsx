@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import phoneService from './services/phonebook'
 import axios from 'axios'
 import Filter from "./Components/Filter"
 import Form from "./Components/Form"
@@ -15,29 +16,31 @@ function App() {
 
     //Display initial phonebook, will only render once
     useEffect(()=> {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(res => setNewFilteredList(res.data))
+      phoneService
+      .getAll()
+      .then(res => setNewFilteredList(res))
     }, [])
-
+    
     //Fetch phonebook
     useEffect(() => {
-      axios
-      .get('http://localhost:3001/persons')
-      .then(res => setPersons(res.data))
-      console.log(persons)
+      phoneService
+      .getAll()
+      .then(res => setPersons(res))
     }, [])
 
+    //Handles name change
     const handleNameChange = (event) => {
       setNewName(event.target.value)
       console.log(event.target.value)
     }
 
+    //Handles number change
     const handleNumberChange = (event) => {
       setNewNumber(event.target.value)
       console.log(event.target.value)
     }
 
+    //Handles the filtration of the names
     const handleFilterChange = (event) => {
       const filterValue = event.target.value
       setNewFilter(filterValue)
@@ -45,11 +48,13 @@ function App() {
       setNewFilteredList(filterNames(filterValue))
     }
     
+    //Function that returns a list of the filtered names depending on the parameter
     const filterNames = (value) => {
       const filteredList = persons.filter(person => person.name.toLowerCase().includes(value))
       return filteredList
     }
 
+    //Handles submit event, sets the name and number input to empty. 
     const handleSubmit = (event) => {
       event.preventDefault()
       
@@ -63,12 +68,11 @@ function App() {
       
       else{
         const newPerson = {name: newName, number: newNumber}
-        // const newPerson = [...persons, {name: newName, number: newNumber}]
-        axios
-          .post('http://localhost:3001/persons', newPerson)
+        phoneService
+          .addNew(newPerson)
           .then(res => {
-            console.log(res.data)
-            setPersons([...persons, res.data])
+            console.log(res)
+            setPersons([...persons, res])
           })
         setNewName('')
         setNewNumber('')
