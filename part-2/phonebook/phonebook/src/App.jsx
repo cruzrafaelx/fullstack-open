@@ -3,7 +3,7 @@ import phoneService from './services/phonebook'
 import Filter from "./Components/Filter"
 import Form from "./Components/Form"
 import Persons from "./Components/Persons"
-import './App.css'
+import Notification from "./Components/Notification"
 
 function App() {
 
@@ -12,6 +12,8 @@ function App() {
     const [newNumber, setNewNumber] = useState('')
     const [newFilter, setNewFilter] = useState('')
     const [newFilteredList, setNewFilteredList] = useState([])
+    const [error, setError] = useState(null)
+    const [success, setSuccess] = useState(null)
 
     //Set and display initial phonebook 
     useEffect(() => {
@@ -23,7 +25,7 @@ function App() {
       })
     }, [])
 
-    //Immediately adds the new person to the phonebook
+    //Immediately displays the new person to the phonebook
     useEffect(()=> {
       setNewFilteredList(persons)
     }, [persons])
@@ -67,10 +69,15 @@ function App() {
     const handleSubmit = (event) => {
       event.preventDefault()
       
+      //Replace number for an existing contact
       if(persons.some(person => person.name === newName)){
+
+        //Confirm with user if delete 
         if(window.confirm(`${newName} is already added to the phonebook, replace existing number?`)){
           
-          //map over the persons array and filter out element that has newName
+          //Check if newNumber is not blank
+          if(newNumber.length > 1){
+            //map over the persons array and filter out element that has newName
           const changedPerson = persons.filter(person => person.name === newName)
           
           //create a new object with the modified number for this element
@@ -80,19 +87,30 @@ function App() {
           const id = changedPerson[0].id
           phoneService
           .changeNum(id, changedData)
+          .then(() =>{
+            setSuccess(`${changedData.name}'s number was changed to ${changedData.number} `)
+            setTimeout(() => {
+              setSuccess(null)
+            }, 3000)
 
-          //setPersons with the modified object
-          const updatedPersons = persons.map(person => {
+            //setPersons with the modified object
+            const updatedPersons = persons.map(person => person.id === id ? changedData : person)
+            setPersons(updatedPersons)
             
-            if(person.id === id){
-              return changedData
-            }
-            else{
-              return person
-            }
+          })
+          .catch(error => {
+            setError("This person was deleted from the server!")
+            setTimeout(()=>{
+              setError(null)
+            }, 3000)
           })
           
-          setPersons(updatedPersons)
+          }
+
+          else{
+            alert("Number cannot be left blank!")
+          }
+          
         }
       } 
 
@@ -108,6 +126,10 @@ function App() {
             console.log(res)
             setPersons([...persons, res])
           })
+        setSuccess(`${newPerson.name} has been added`)
+        setTimeout(()=>{
+          setSuccess(null)
+        }, 3000)
         setNewName('')
         setNewNumber('')
       }
@@ -116,6 +138,7 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification error={error} success={success}/>
       <Filter value={newFilter} onChange={handleFilterChange}/>
       <Form onSubmit={handleSubmit} 
             onChangeName={handleNameChange} 

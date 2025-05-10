@@ -1,19 +1,9 @@
 {
   "persons": [
     {
-      "id": "837c",
-      "name": "rap",
-      "number": "12345"
-    },
-    {
-      "id": "218b",
-      "name": "paw",
-      "number": ""
-    },
-    {
-      "id": "17b8",
-      "name": "zen 0",
-      "number": "09238"
+      "id": "5cba",
+      "name": "Zen",
+      "number": "1234"
     }
   ]
 }
