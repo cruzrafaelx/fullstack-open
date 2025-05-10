@@ -11,5 +11,15 @@ const addNew = (person) => {
     return request.then(res => res.data)
 }
 
+const removePerson = (id) => {
+    const request = axios.delete(`${baseUrl}/${id}`)
+    request.catch(error => alert("This note is already deleted!"))
+}
 
-export default { getAll, addNew }
+const changeNum = (id, obj) => {
+    const request = axios.put(`${baseUrl}/${id}`, obj)
+    return request.then(res => res.data)
+}
+
+
+export default { getAll, addNew, removePerson, changeNum }

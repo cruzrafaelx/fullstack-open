@@ -1,4 +1,4 @@
-const Persons = ({filter}) => {
+const Persons = ({filter, onDelete}) => {
     return(
         <div>
             {filter.map(name => 
@@ -7,6 +7,7 @@ const Persons = ({filter}) => {
                 <div key={name.id}>
                     <p>{name.name}</p>
                     <p>{name.number}</p>
+                    <button onClick={()=>onDelete(name.id)}>delete</button>
                 </div> )
                 }
             )}

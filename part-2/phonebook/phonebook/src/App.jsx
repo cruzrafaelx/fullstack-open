@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import phoneService from './services/phonebook'
-import axios from 'axios'
 import Filter from "./Components/Filter"
 import Form from "./Components/Form"
 import Persons from "./Components/Persons"
@@ -14,19 +13,20 @@ function App() {
     const [newFilter, setNewFilter] = useState('')
     const [newFilteredList, setNewFilteredList] = useState([])
 
-    //Display initial phonebook, will only render once
-    useEffect(()=> {
-      phoneService
-      .getAll()
-      .then(res => setNewFilteredList(res))
-    }, [])
-    
-    //Fetch phonebook
+    //Set and display initial phonebook 
     useEffect(() => {
       phoneService
       .getAll()
-      .then(res => setPersons(res))
+      .then(res =>  {
+        setPersons(res)
+        setNewFilteredList(res)
+      })
     }, [])
+
+    //Immediately adds the new person to the phonebook
+    useEffect(()=> {
+      setNewFilteredList(persons)
+    }, [persons])
 
     //Handles name change
     const handleNameChange = (event) => {
@@ -40,6 +40,15 @@ function App() {
       console.log(event.target.value)
     }
 
+    //Handles deletion of a person
+    const handleDelete = (id) => {
+      if(window.confirm("Do you want to delete this person?")){
+        phoneService.removePerson(id)
+      }
+      const modifiedPersons = persons.filter(n => n.id !== id)
+      setPersons(modifiedPersons)
+    }
+
     //Handles the filtration of the names
     const handleFilterChange = (event) => {
       const filterValue = event.target.value
@@ -50,7 +59,7 @@ function App() {
     
     //Function that returns a list of the filtered names depending on the parameter
     const filterNames = (value) => {
-      const filteredList = persons.filter(person => person.name.toLowerCase().includes(value))
+      const filteredList = persons.filter(person => person.name.toLowerCase().includes(value.toLowerCase()))
       return filteredList
     }
 
@@ -59,7 +68,32 @@ function App() {
       event.preventDefault()
       
       if(persons.some(person => person.name === newName)){
-        alert(`${newName} is already added to the phonebook`)
+        if(window.confirm(`${newName} is already added to the phonebook, replace existing number?`)){
+          
+          //map over the persons array and filter out element that has newName
+          const changedPerson = persons.filter(person => person.name === newName)
+          
+          //create a new object with the modified number for this element
+          const changedData = {...changedPerson[0], number: newNumber}
+
+          //use changeNum: submit the id and the new object
+          const id = changedPerson[0].id
+          phoneService
+          .changeNum(id, changedData)
+
+          //setPersons with the modified object
+          const updatedPersons = persons.map(person => {
+            
+            if(person.id === id){
+              return changedData
+            }
+            else{
+              return person
+            }
+          })
+          
+          setPersons(updatedPersons)
+        }
       } 
 
       else if(newName === '' || newNumber === ''){
@@ -87,9 +121,11 @@ function App() {
             onChangeName={handleNameChange} 
             onChangeNum={handleNumberChange}
             valueName={newName}
-            valueNum={newNumber}/>
+            valueNum={newNumber}
+            />
       <h2>Numbers</h2>
-      <Persons filter={newFilteredList} />
+      <Persons filter={newFilteredList}
+               onDelete={handleDelete} />
     </div>
   )
 }
