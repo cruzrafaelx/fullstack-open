@@ -88,10 +88,12 @@ function App() {
                 return <li key={key}>{countryFilter[0].languages[key]}</li>
               })}
             </ul>
-            <img src={countryFilter[0].flags.png} alt={`${countryFilter[0].name.common} flag`}/>
+            <img src={countryFilter[0].flags.png} alt={`${countryFilter[0].name.common} flag`}/>  
             <h2>Weather in {countryFilter[0].name.common}</h2>
-            <p>Temperature: {weather.length === 1 && weather.main.temp - 273.15} </p>
-            
+            <p>Temperature: {(weather && weather.main) && (weather.main.temp - 273.15).toFixed(2)} degrees celsius</p>
+            <img src={(weather && weather.weather) && `https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}></img>
+            <p>{(weather && weather.weather) && weather.weather[0].description}</p>
+            <p>Wind speed: {(weather && weather.wind) && weather.wind.speed} m/s</p>
           </div>
         )
       }
