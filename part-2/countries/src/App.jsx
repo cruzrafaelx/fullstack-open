@@ -7,7 +7,9 @@ function App() {
   const [countries, setCountries] = useState([])
   const [value, setValue] = useState("")
   const [countryFilter, setCountryFilter] = useState([])
-  const [displayCountries, setDisplayCountries] = useState([])
+  const [weather, setWeather] = useState([])
+  
+  
 
   useEffect(()=>{
     axios
@@ -17,12 +19,34 @@ function App() {
     })
   }, [])
 
+  useEffect(()=>{
+    if(countryFilter.length === 1){
+      const apiKey = "0044f30bf7a7caeaa0381a43c2222d02"
+      const lat = countryFilter[0].latlng[0]
+      const long = countryFilter[0].latlng[1]
+      axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${apiKey}`)
+      .then(res => setWeather(res.data))
+      
+    }
+  }, [countryFilter])
+
+  useEffect(()=>{
+    console.log(weather)
+  },[weather])
+
+
+
   const handleChange = (event) => {
     setValue(event.target.value)
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
+  }
+
+  const handleShow = (country) => {
+    setCountryFilter(country)
   }
 
   useEffect(()=>{
@@ -45,7 +69,7 @@ function App() {
           return (
           <div>
             <p>{country.name.common}</p>
-            <button>Show more</button>
+            <button onClick={()=>handleShow([country])}>Show more</button>
           </div>
           )
         })
@@ -53,6 +77,7 @@ function App() {
       
       //Displays country details if there is only 1 match
       else if(countryFilter.length === 1) {
+
         return (
           <div>
             <h1>{countryFilter[0].name.common}</h1>
@@ -64,11 +89,16 @@ function App() {
               })}
             </ul>
             <img src={countryFilter[0].flags.png} alt={`${countryFilter[0].name.common} flag`}/>
+            <h2>Weather in {countryFilter[0].name.common}</h2>
+            <p>Temperature: {weather.length === 1 && weather.main.temp - 273.15} </p>
+            
           </div>
         )
       }
     }
-    
+    //Fix the temperature
+    //Display the weather logo
+    //Display wind speed
     return null
   }
 
@@ -103,10 +133,9 @@ function App() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form>
         <p>find countries</p>
         <input value={value} onChange={handleChange}></input>
-        <button type='submit'>Submit</button>
       </form>
       <div>
         {displayCountry()}
