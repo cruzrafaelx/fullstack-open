@@ -29,6 +29,7 @@ let persons = [
     }
 ]
 
+//Generate new ID
 const generateId = () => {
     const maxId = persons.length > 0 
                 ? Math.max(...persons.map(p => Number(p.id)))
@@ -37,15 +38,12 @@ const generateId = () => {
     return maxId + 1
 }
 
-const newId = () => {
-    return Math.floor(Math.random() * 100000)
-}
-
-
+//GET all persons
 app.get('/api/phonebook', (request, response) => {
     response.json(persons)
 })
 
+//GET info
 app.get('/info', (request, response) => {
     const numPeople = persons.length
     const date = new Date()
@@ -56,6 +54,7 @@ app.get('/info', (request, response) => {
         `)
 }) 
 
+//GET a specific person
 app.get('/api/phonebook/:id', (request, response) => {
 
     const id = request.params.id
@@ -71,12 +70,14 @@ app.get('/api/phonebook/:id', (request, response) => {
     }
 })
 
+//DELETE a specific person
 app.delete('/api/phonebook/:id', (request, response) => {
     const id = Number(request.params.id)
     persons = persons.filter(p => p.id !== id)
     response.end()
 })
 
+//POST a new person
 app.post('/api/phonebook', (request, response) => {
     const body = request.body
     console.log(body)
@@ -96,6 +97,7 @@ app.post('/api/phonebook', (request, response) => {
         )
     }
 
+    //Otherwise create a new person object, push it to persons array.
     else {
         const person = {
             id : generateId(),
@@ -108,6 +110,7 @@ app.post('/api/phonebook', (request, response) => {
     }
 })
 
+//Create server
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)

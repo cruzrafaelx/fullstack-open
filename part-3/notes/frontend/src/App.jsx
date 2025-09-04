@@ -13,15 +13,16 @@ const App = () => {
     'a new note...'
   ) 
   const [showAll, setShowAll] = useState(true)
-  const [errorMessage, setErrorMessage] = useState("There was an error...")
+  const [errorMessage, setErrorMessage] = useState(null)
 
-  //Fetch notes at first render
+  //GET: Fetch notes at first render
   useEffect(() => {
     console.log('effect')
     NoteService
       .getAll()
       .then(initialNotes => {
         console.log('promise fulfilled')
+        console.log(initialNotes)
         setNotes(initialNotes)
       })
   }, [])
@@ -36,11 +37,12 @@ const App = () => {
     setNewNote(event.target.value)
   }
 
-  //Toggles importance of note
+  //PUT: Toggles importance of note
   const toggleImportance = (id) => {
-    const url = `http://localhost:3001/notes/${id}`
     const note = notes.find(n => n.id === id)
+    console.log("matching note", note)
     const changedNote = {...note, important: !note.important }
+    console.log("modified note", changedNote)
     NoteService
          .update(id, changedNote) 
          .then(returnedNote => {
@@ -59,7 +61,7 @@ const App = () => {
          })
   }
 
-  //Alters notes in server
+  //POST: Add notes to server
   const addNote = (event) => {
     event.preventDefault()
     const noteObject = {
@@ -70,6 +72,7 @@ const App = () => {
     NoteService
       .create(noteObject)
       .then(returnedNote => {
+        console.log(returnedNote)
         setNotes(notes.concat(returnedNote))
         setNewNote('')
       })

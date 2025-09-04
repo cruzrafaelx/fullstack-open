@@ -4,6 +4,7 @@ const app = express()
 
 app.use(express.json()) //json parser middleware
 app.use(cors()) //cross origin resource sharing middleware
+app.use(express.static('dist')) //handles static files
 
 let notes = [
     {
@@ -80,7 +81,7 @@ let notes = [
     const note = {
       content: body.content,
       important: body.important || false,
-      id: generateId(),
+      id: String(generateId()),
     }
     
     //Concat the new note object to the existing notes array
@@ -90,6 +91,30 @@ let notes = [
     response.json(note)
   })
 
+  //PUT, updates importance of a note
+  app.put('/api/notes/:id', (req,res) => {
+    const id = req.params.id
+    const index = notes.findIndex(n => id === n.id)
+    console.log(index)
+    const body = req.body
+
+    //Check if id exists
+    if (index === -1) {
+        return res.status(404).json({ error: 'note not found' })
+      }
+
+    //Assign note to oldNote
+    const oldNote = notes[index]
+
+    //Updated note
+    const updatedNote = {...oldNote, important: body.important}
+
+    //Re-assign value of chosen note with the updated note value
+    notes[index] = updatedNote
+
+    res.json(updatedNote)
+  })
+  
   const PORT = process.env.PORT || 3001
   app.listen(PORT, () => {
       console.log(`Server is running in port ${PORT}`)
