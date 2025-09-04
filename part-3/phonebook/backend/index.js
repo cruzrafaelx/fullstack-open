@@ -1,10 +1,17 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
+//json-parser
 app.use(express.json())
+
+//request logger
 app.use(morgan('tiny'))
+
+//allows CORS
+app.use(cors())
 
 let persons = [
     { 
