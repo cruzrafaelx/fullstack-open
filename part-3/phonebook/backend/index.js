@@ -13,6 +13,9 @@ app.use(morgan('tiny'))
 //allows CORS
 app.use(cors())
 
+//show static content
+app.use(express.static('dist'))
+
 let persons = [
     { 
       "id": "1",
@@ -44,10 +47,6 @@ const generateId = () => {
 
     return maxId + 1
 }
-
-app.get('/', (request, response) => {
-    response.json('<h1>Hello there!</h1>')
-})
 
 //GET all persons
 app.get('/api/phonebook', (request, response) => {
