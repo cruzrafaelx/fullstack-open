@@ -15,6 +15,8 @@ function App() {
     const [error, setError] = useState(null)
     const [success, setSuccess] = useState(null)
 
+    console.log(persons)
+
     //Set and display initial phonebook 
     useEffect(() => {
       phoneService
@@ -76,15 +78,17 @@ function App() {
         if(window.confirm(`${newName} is already added to the phonebook, replace existing number?`)){
           
           //Check if newNumber is not blank
-          if(newNumber.length > 1){
+          if(newNumber.length > 0){
             //map over the persons array and filter out element that has newName
           const changedPerson = persons.filter(person => person.name === newName)
           
           //create a new object with the modified number for this element
           const changedData = {...changedPerson[0], number: newNumber}
+          
 
           //use changeNum: submit the id and the new object
-          const id = changedPerson[0].id
+          const id = String(changedPerson[0].id)
+          console.log(id, typeof(id))
           phoneService
           .changeNum(id, changedData)
           .then(() =>{

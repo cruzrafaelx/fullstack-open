@@ -115,9 +115,20 @@ app.post('/api/phonebook', (request, response) => {
             number: body.number 
         }
 
-        persons.push(person)
+        persons = persons.concat(person)
         response.json(person)
     }
+})
+
+//PUT change number of an existing contact
+app.put('/api/phonebook/:id', (request, response) => {
+    const body = request.body
+    const id = request.params.id
+    const modifiedPersons = persons.map(person => (
+        person.id === id ? {...person, number: body.number} : person
+    ))
+    persons = modifiedPersons
+    response.json(modifiedPersons)
 })
 
 //Create server
