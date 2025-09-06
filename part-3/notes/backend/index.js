@@ -1,5 +1,7 @@
+require('dotenv').config() //environment variables (PORT)
 const express = require('express')
-const cors = require('cors')
+const cors = require('cors') //cors middleware
+const Note = require('./models/note') //Note model
 const app = express()
 
 app.use(express.json()) //json parser middleware
@@ -24,6 +26,7 @@ let notes = [
     }
   ]
 
+
   //Function to generate a new Id based on the largest id. 
   const generateId = () => {
       const maxId = notes.length > 1 
@@ -40,30 +43,38 @@ let notes = [
   
   //GET, fetches all the notes
   app.get('/api/notes', (request, response) => {
-    response.json(notes)
-    console.log(request.headers)
+    Note.find({}).then(notes => {
+      response.json(notes)
+
+    })
   })
 
   //GET, fetches a specific note using its id
   app.get('/api/notes/:id', (request, response) => {
-    const id = request.params.id
-    const note = notes.find(note => note.id === id)
-    if(note){
-        response.json(note)
-        console.log(request.headers)
-    }
-    else{
-        response.statusMessage = "Id is non-existent"
-        response.status(404).end()
-    }
+    Note.findById(request.params.id).then(note => {
+      response.json(note)
+    })
   })
 
   //DELETE, deletes a note
   app.delete('/api/notes/:id', (request, response) => {
     const id = request.params.id
-    notes = notes.filter(note => note.id !== id)
 
-    response.status(204).end()
+    Note.findByIdAndDelete(id)
+    .then(deletedNote => {
+      if(!deletedNote){
+        return response.status(404).json({error: 'document not found!'})
+      } 
+      else{
+        console.log('Document deleted: ', deletedNote)
+        response.status(204).end()
+      }
+    })
+    .catch(err => response.status(400).json({error: 'Invalid id or deletion failed!'}))
+
+
+    // notes = notes.filter(note => note.id !== id)
+    // response.status(204).end()
   })
 
   //POST, creates a new note
@@ -71,51 +82,60 @@ let notes = [
     const body = request.body
     
     //We check if there is a content, if not, return a 404
-    if(!body.content){
-      return response.status(404).json({
-        error: 'content missing'
-      })
-    }
-
-    //If there is a content, create a new note object, use the generateId function 
-    const note = {
+    if(!body.content)return response.status(404).json({error: 'content missing'})
+    
+    //If there is a content, create a new note object using the Note model (constructor function)
+    const note = new Note({
       content: body.content,
       important: body.important || false,
-      id: String(generateId()),
-    }
-    
-    //Concat the new note object to the existing notes array
-    notes = notes.concat(note)
+    })
 
-    //respond with the new note object using the json-parser method to the client
-    response.json(note)
+    note.save().then(savedNote => {
+      response.json(savedNote)
+    })
+    
+    // //Concat the new note object to the existing notes array
+    // notes = notes.concat(note)
   })
 
   //PUT, updates importance of a note
   app.put('/api/notes/:id', (req,res) => {
     const id = req.params.id
-    const index = notes.findIndex(n => id === n.id)
-    console.log(index)
     const body = req.body
 
-    //Check if id exists
-    if (index === -1) {
-        return res.status(404).json({ error: 'note not found' })
-      }
+    Note.findByIdAndUpdate(id,
+      { important: body.important}, // set new value
+      { new: true } // return updated document
+    )
+      .then(updatedNote => {
+        if(!updatedNote) return res.status(404).json({error: 'Note not found!'})
+        res.json(updatedNote)
+      })
+      .catch(err => res.status(400).json({error: 'Malformed request or invalid ID'})) 
 
-    //Assign note to oldNote
-    const oldNote = notes[index]
+    // const id = req.params.id
+    // const index = notes.findIndex(n => id === n.id)
+    // console.log(index)
+    // const body = req.body
 
-    //Updated note
-    const updatedNote = {...oldNote, important: body.important}
+    // //Check if id exists
+    // if (index === -1) {
+    //     return res.status(404).json({ error: 'note not found' })
+    //   }
 
-    //Re-assign value of chosen note with the updated note value
-    notes[index] = updatedNote
+    // //Assign note to oldNote
+    // const oldNote = notes[index]
 
-    res.json(updatedNote)
+    // //Updated note
+    // const updatedNote = {...oldNote, important: body.important}
+
+    // //Re-assign value of chosen note with the updated note value
+    // notes[index] = updatedNote
+
+    // res.json(updatedNote)
   })
   
-  const PORT = process.env.PORT || 3001
+  const PORT = process.env.PORT
   app.listen(PORT, () => {
       console.log(`Server is running in port ${PORT}`)
   } )
