@@ -18,8 +18,22 @@ mongoose.connect(url)
 
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+        type: String,
+        minLength: 3,
+        required: true
+    },
+    number: {
+        type: String,
+        validate: {
+            validator: function (num) {
+                const regex = /^\d{2,3}-\d+$/
+                return regex.test(num)
+            },
+            message: props => `${props.value} is not a valid number! Format must be 2-3 digits, hypen, then digits (e.g. 12-3456)`
+        },
+        required: true
+    }
 })
 
 personSchema.set('toJSON', {
