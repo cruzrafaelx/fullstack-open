@@ -15,40 +15,40 @@ app.use(express.static('dist')) //handles static files
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
-  
+
 //GET, fetches all the notes
 app.get('/api/notes', (request, response, next) => {
   Note.find({})
-  .then(notes => {
-    response.json(notes)
-  })
-  .catch(error => {
-    next(error)
-  })
+    .then(notes => {
+      response.json(notes)
+    })
+    .catch(error => {
+      next(error)
+    })
 })
 
 //GET, fetches a specific note using its id
 app.get('/api/notes/:id', (request, response, next) => {
   Note.findById(request.params.id)
-  .then(note => {
-    if(note){
-      response.json(note)
-    } else {
-      response.status(404).end()
-    }
-  })
-  .catch(error => next(error))
+    .then(note => {
+      if(note){
+        response.json(note)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 //POST, creates a new note
 app.post('/api/notes', (request, response, next) => {
   const body = request.body
-  
+
   //We check if there is a content, if not, return a 400 since the error is from the user (invalid request or malforemed)
   if(!body.content){
-    return response.status(400).json({error: 'content missing'})
+    return response.status(400).json({ error: 'content missing' })
   }
-  
+
   //If there is a content, create a new note object using the Note model (constructor function)
   const note = new Note({
     content: body.content,
@@ -56,46 +56,46 @@ app.post('/api/notes', (request, response, next) => {
   })
 
   note.save()
-  .then(savedNote => {
-    response.json(savedNote)
-  })
-  .catch(error => {
-    next(error)
-  })
+    .then(savedNote => {
+      response.json(savedNote)
+    })
+    .catch(error => {
+      next(error)
+    })
 })
 
 //PUT, updates importance of a note
 app.put('/api/notes/:id', (request, response, next) => {
 
   Note.findByIdAndUpdate(request.params.id,
-    { important: request.body.important}, // set new value
+    { important: request.body.important }, // set new value
     { new: true } // return updated document
   )
     .then(updatedNote => {
       if(!updatedNote){
-        return response.status(404).json({error: 'Note not found!'})
+        return response.status(404).json({ error: 'Note not found!' })
       } else {
         response.json(updatedNote)
       }
     })
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 //DELETE, deletes a note
 app.delete('/api/notes/:id', (request, response, next) => {
 
   Note.findByIdAndDelete(request.params.id)
-  .then(deletedNote => {
-    if(!deletedNote){
-      return response.status(404).json({error: 'document not found!'})
-    } 
-    else{
-      response.status(204).end()
-    }
-  })
-  .catch(error =>  {
-    next(error)
-  })
+    .then(deletedNote => {
+      if(!deletedNote){
+        return response.status(404).json({ error: 'document not found!' })
+      }
+      else{
+        response.status(204).end()
+      }
+    })
+    .catch(error =>  {
+      next(error)
+    })
 })
 
 
@@ -121,9 +121,9 @@ const errorHandler = (error, request, response, next) => {
 
 // handler of requests with results to errors
 app.use(errorHandler)
-  
+
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server is running in port ${PORT}`)
+  console.log(`Server is running in port ${PORT}`)
 } )
