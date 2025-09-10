@@ -129,11 +129,17 @@ function App() {
           .then(res => {
             console.log(res)
             setPersons([...persons, res])
+            setSuccess(`${newPerson.name} has been added`)
+            setTimeout(()=>{
+              setSuccess(null)
+            }, 3000)
           })
-        setSuccess(`${newPerson.name} has been added`)
-        setTimeout(()=>{
-          setSuccess(null)
-        }, 3000)
+          .catch(error => {
+           setError(error.response.data.error)
+           setTimeout(()=>{
+              setError(null)
+           }, 10000)
+          })
         setNewName('')
         setNewNumber('')
       }
