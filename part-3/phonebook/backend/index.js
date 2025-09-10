@@ -118,7 +118,6 @@ app.put('/api/phonebook/:id', (request, response, next) => {
     })
 })
 
-
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
   }
@@ -139,7 +138,6 @@ next(error)
 
 // handler of requests with results to errors
 app.use(errorHandler)
-
 
 //Create server
 const PORT = process.env.PORT
