@@ -18,20 +18,13 @@ notesRouter.get('/', (request, response, next) => {
 })
 
 //GET, fetches a specific note using its id
-notesRouter.get('/:id', (request, response, next) => {
-  Note.findById(request.params.id)
-    .then(note => {
-      if(note){
-        response.json(note)
-      } else {
-        response.status(404).end()
-      }
-    })
-    .catch(error => next(error))
+notesRouter.get('/:id', async (request, response) => {
+  const note = await Note.findById(request.params.id)
+  response.status(200).json(note)
 })
 
 //POST, creates a new note
-notesRouter.post('/', (request, response, next) => {
+notesRouter.post('/', async (request, response) => {
   const body = request.body
 
   //We check if there is a content, if not, return a 400 since the error is from the user (invalid request or malforemed)
@@ -45,13 +38,8 @@ notesRouter.post('/', (request, response, next) => {
     important: body.important || false,
   })
 
-  note.save()
-    .then(savedNote => {
-      response.json(savedNote)
-    })
-    .catch(error => {
-      next(error)
-    })
+  const savedNote = await note.save()
+  response.status(201).json(savedNote)
 })
 
 //PUT, updates importance of a note
@@ -72,20 +60,11 @@ notesRouter.put('/:id', (request, response, next) => {
 })
 
 //DELETE, deletes a note
-notesRouter.delete('/:id', (request, response, next) => {
+notesRouter.delete('/:id', async (request, response) => {
 
-  Note.findByIdAndDelete(request.params.id)
-    .then(deletedNote => {
-      if(!deletedNote){
-        return response.status(404).json({ error: 'document not found!' })
-      }
-      else{
-        response.status(204).end()
-      }
-    })
-    .catch(error =>  {
-      next(error)
-    })
+ await Note.findByIdAndDelete(request.params.id)
+ response.status(204).end()
+   
 })
 
 module.exports = notesRouter
