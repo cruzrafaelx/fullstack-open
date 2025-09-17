@@ -1,20 +1,12 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/note')
-
-// //GET, fetches the root directory
-// notesRouter.get('/', (request, response) => {
-//   response.send('<h1>Hello World!</h1>')
-// })
+const User = require('../models/user')
 
 //GET, fetches all the notes
-notesRouter.get('/', (request, response, next) => {
-  Note.find({})
-    .then(notes => {
-      response.json(notes)
-    })
-    .catch(error => {
-      next(error)
-    })
+notesRouter.get('/', async ( request, response ) => {
+  const notes = await Note
+    .find({}).populate('user', { username: 1, name: 1 })
+  response.json(notes)
 })
 
 //GET, fetches a specific note using its id
@@ -26,19 +18,30 @@ notesRouter.get('/:id', async (request, response) => {
 //POST, creates a new note
 notesRouter.post('/', async (request, response) => {
   const body = request.body
+  const user = await User.findById(body.userId)
 
   //We check if there is a content, if not, return a 400 since the error is from the user (invalid request or malforemed)
   if(!body.content){
     return response.status(400).json({ error: 'content missing' })
   }
 
+  else if(!user){
+    return response.status(400).json({ error: 'userId missing or not valid' })
+  }
+
   //If there is a content, create a new note object using the Note model (constructor function)
   const note = new Note({
     content: body.content,
     important: body.important || false,
+    user: user._id
   })
 
   const savedNote = await note.save()
+
+  //Save the newly created note's id to the notes field of the user and save it to users collection
+  user.notes = user.notes.concat(savedNote._id)
+
+  await user.save()
   response.status(201).json(savedNote)
 })
 
