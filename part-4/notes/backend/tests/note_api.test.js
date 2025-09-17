@@ -102,8 +102,6 @@ describe('note api tests', () => {
 
 //Users automated tests
 describe('when there is initially one user in db', () => {
-  console.log('User type:', typeof User)
-  console.log('Has deleteMany:', typeof User.deleteMany)
 
   beforeEach( async () => {
     await User.deleteMany({})
