@@ -35,9 +35,10 @@ notesRouter.post('/', async (request, response) => {
     return response.status(401).json({ error: 'token invalid' })
   }
 
-  const user = await User.findById(body.userId)
+  //const user = await User.findById(body.userId)
+  //Changing this to a JWT-based authentication
+  const user = await User.findById(decodedToken.id)
 
-  console.log(user)
   //We check if there is a content, if not, return a 400 since the error is from the user (invalid request or malforemed)
   if(!user){
     return response.status(400).json({ error: 'userId missing or not valid' })
