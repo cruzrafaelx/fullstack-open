@@ -3,12 +3,16 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 
 userRouter.get('/', async (request, response) => {
-    const users = await User.find({})
+    const users = await User.find({}).populate('blogs')
     response.json(users)
 })
  
 userRouter.post('/', async (request, response) => {
     const { name, username, password } = request.body
+
+    if(!password || password.length < 3){
+        return response.status(400).json({ error: 'Password must be atleast 3 characters long'})
+    }
 
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(password, saltRounds)

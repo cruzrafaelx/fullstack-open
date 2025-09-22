@@ -35,10 +35,8 @@ const mostBlogs = (blogs) => {
 
 
 const mostLikes = (blogs) => {
-
     const mostLike = lodash.maxBy(blogs, 'likes')
     return {author: mostLike.author, likes: mostLike.likes}
-
 }
 
 module.exports = { dummy, sumOfLikes, favoriteBlog, mostBlogs, mostLikes }
