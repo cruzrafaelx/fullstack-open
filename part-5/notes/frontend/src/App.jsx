@@ -31,6 +31,15 @@ const App = () => {
       })
   }, [])
 
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    if(loggedUserJSON){
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      NoteService.setToken(user.token)
+    }
+  }, [])
+
   //Shows and hides notes
   const notesToShow = showAll
     ? notes
@@ -88,6 +97,9 @@ const App = () => {
     try {
       const loggedUser = await LoginService.login({ username, password })
       setUser(loggedUser) //This is used to store the token after logging in
+      
+      window.localStorage.setItem('loggedNoteappUser', JSON.stringify(loggedUser))
+      
       setUsername('')
       setPassword('')
       NoteService.setToken(loggedUser.token)
@@ -97,7 +109,13 @@ const App = () => {
         setErrorMessage(null)
       }, 5000)
     }
-    
+  }
+
+  const handleLogout = async (event) => {
+    event.preventDefault()
+    window.localStorage.removeItem('loggedNoteappUser')
+    setUser(null)
+    NoteService.setToken(null)
   }
 
   const loginForm = () => (
@@ -144,9 +162,12 @@ const App = () => {
       <Notification message={errorMessage}/>
       {!user && loginForm()}
       {user && (
+        <>
         <div>
           <p>{user.username} is currently logged in</p>
         </div>
+        <button onClick={handleLogout}>Logout</button>
+        </>
       )}
       <div>
         <button onClick={() => setShowAll(!showAll)}>
