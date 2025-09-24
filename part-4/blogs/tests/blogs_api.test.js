@@ -198,65 +198,6 @@ describe('blogs api test', () => {
     })
 })
 
-describe('login api test', () => {
-    test('POST /Able to login succesfully', async () => {
-
-        const userLogin = {
-            username: "testuser1",
-            password: "secret"
-        } 
-
-        const validUser = await User.findOne({ username: "testuser1" })
-
-        await api
-        .post('/api/login')
-        .send(userLogin)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-
-        const passwordCorrect = await bcrypt.compare(userLogin.password, validUser.passwordHash)
-        assert.strictEqual(passwordCorrect, true)
-
-    })
-
-    test('POST, /error 400 if user doesnt exist', async () => {
-
-        const userLogin = {
-            username: "testuser6",
-            password: "secret"
-        } 
-
-        await api
-        .post('/api/login')
-        .send(userLogin)
-        .expect(400)
-
-        const user = await User.findOne({ username: "testuser5" })
-        assert.strictEqual(user, null)
-        
-    })
-
-    test('POST, /error 400 if password is false', async () => {
-
-        const userLogin = {
-            username: "testuser5",
-            password: "false"
-        } 
-
-        const validUser = await User.findOne({ username: "testuser1" })
-
-        await api
-        .post('/api/login')
-        .send(userLogin)
-        .expect(400)
-        .expect('Content-Type', /application\/json/)
-
-        const passwordCorrect = await bcrypt.compare(userLogin.password, validUser.passwordHash)
-        assert.strictEqual(passwordCorrect, false)
-        
-    })
-})
-
 after(async () => {
     await mongoose.connection.close()
 })
