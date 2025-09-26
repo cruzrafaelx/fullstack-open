@@ -5,8 +5,9 @@ const jwt = require('jsonwebtoken')
 const middleware = require('../utils/middlewares')
 
 //GET: Fetch all blogs
-blogsRouter.get('/', async (request, response) => {
-    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1})
+blogsRouter.get('/', middleware.userExtractor, async (request, response) => {
+    const userId = request.user.id
+    const blogs = await Blog.find({ user: userId }).populate('user', { username: 1, name: 1})
     response.json(blogs)
   })
 

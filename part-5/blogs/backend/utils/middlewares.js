@@ -22,15 +22,20 @@ const tokenExtractor = (request, response, next) => {
 
 const userExtractor = async (request, response, next) => {
 
-  const token = request.token
+  const authHeader = request.get('Authorization')
+  
+  if(authHeader && authHeader.toLowerCase().startsWith('bearer ')){
+    const token = authHeader.substring(7)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    const user = await User.findById(decodedToken.id)
+    request.user = user
+  }
 
-  if (!token) {
+ else {
     return response.status(401).json({ error: 'Token missing' })
   }
 
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  const user = await User.findById(decodedToken.id)
-  request.user = user
+
   next()
 }
 
