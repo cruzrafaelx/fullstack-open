@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
+import './app.css'
 import Blog from './components/Blog'
 import BlogService from './services/blogs'
 import LoginService from './services/login'
 import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+
 
 
 function App() {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
   const [user, setUser] = useState(null)
 
   //Check if user details is saved in localStorage
@@ -37,7 +43,6 @@ function App() {
       console.error(error.response.data)
     }
   }
-
 
   //Handle login
   const handleLogin = async (event) => {
@@ -71,29 +76,49 @@ function App() {
     BlogService.setToken(null)
   }
 
-  //Contains blog list
-  const blogsList = blogs.map(blog => 
-      (<Blog 
-        key={blog.id}
-        title={blog.title}
-        author={blog.author}
-      />))
- 
+  //Handle create blog
+  const handleCreateBlog = async (event) => {
+    event.preventDefault()
+    console.log('Blog submitted!')
+    console.log(user.token)
+    BlogService.setToken(user.token)
+    await BlogService.create({title, author, url})
+    fetchBlogs()
+  }
+
   const loginFormProps = { username, password, setUsername, setPassword, handleLogin}
- 
+  const blogFormProps = { title, author, url, setTitle, setAuthor, setUrl, handleCreateBlog }
+  
+  //Login form
+  const loginForm = !user 
+  ? <LoginForm {...loginFormProps}/> 
+  : <div>
+      <p>{user.user} is logged in</p> 
+      <button onClick={handleLogout}>logout</button>
+    </div>
+
+  //Blog list
+  const blogsList = !user 
+  ? null
+  : blogs.length === 0
+    ? <p>No blogs yet</p>
+    : blogs.map(blog => (<Blog 
+    key={blog.id}
+    title={blog.title}
+    author={blog.author} />))
+  
+  
+  //Blog form
+  const blogForm = user
+  ? <BlogForm {...blogFormProps}/>
+  : <p>Log in to start creating blogs</p>
+
   return (
     <>
       <h1>Blog List</h1>
-
-      {!user 
-      ? <LoginForm {...loginFormProps}/> 
-      : (<div>
-          <p>{user.user} is logged in</p> 
-          <button onClick={handleLogout}>logout</button>
-        </div>)
-      }
-
-      {user && blogsList}
+      {loginForm}
+      {blogForm}
+      {blogsList}
     </>
   )
 }
