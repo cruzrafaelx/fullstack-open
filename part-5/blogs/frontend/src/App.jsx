@@ -5,6 +5,7 @@ import BlogService from './services/blogs'
 import LoginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Notification from './components/Notification'
 
 
 
@@ -16,6 +17,8 @@ function App() {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
   const [user, setUser] = useState(null)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
 
   //Check if user details is saved in localStorage
   useEffect(()=> {
@@ -64,7 +67,13 @@ function App() {
 
     catch(error){
       console.log('Wrong credentials!')
-      console.error(error.response.data)
+      setError(`${error.response.data.error}`)
+      setTimeout(()=>{
+        setError(null)
+        setTitle('')
+        setAuthor('')
+        setUrl('')
+      }, 5000)
     }
   }
 
@@ -79,15 +88,32 @@ function App() {
   //Handle create blog
   const handleCreateBlog = async (event) => {
     event.preventDefault()
-    console.log('Blog submitted!')
-    console.log(user.token)
-    BlogService.setToken(user.token)
-    await BlogService.create({title, author, url})
-    fetchBlogs()
+    
+    
+    try{
+      console.log('Blog created!', user.token)
+      await BlogService.create({title, author, url})
+      setSuccess(`A new blog ${title} by ${author}`)
+      
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+      
+      await fetchBlogs()
+      
+      setTimeout(()=> setSuccess(null), 5000)
+    }
+    
+    catch(error){
+      console.error(error)
+      setError(error)
+      setTimeout(()=> setError(null), 5000)
+    }
   }
 
   const loginFormProps = { username, password, setUsername, setPassword, handleLogin}
   const blogFormProps = { title, author, url, setTitle, setAuthor, setUrl, handleCreateBlog }
+  const notificationProps =  { success, error }
   
   //Login form
   const loginForm = !user 
@@ -115,6 +141,7 @@ function App() {
 
   return (
     <>
+      { error || success ? <Notification {...notificationProps}/> : null }
       <h1>Blog List</h1>
       {loginForm}
       {blogForm}

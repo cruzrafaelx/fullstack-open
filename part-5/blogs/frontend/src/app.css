@@ -9,3 +9,20 @@
     width: auto;
 }
 
+.notif{
+    padding: 0.8em;
+    font-size: 1.2em;
+}
+
+.success{
+    border: 3px solid green;
+    color: green;
+    background-color: gainsboro;
+}
+
+
+.error{
+    border: 3px solid red;
+    color: red;
+    background-color: gainsboro;
+}
