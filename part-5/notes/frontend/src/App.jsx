@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import {useState, useEffect, useRef} from 'react'
+=======
+import {useState, useEffect, useRef } from 'react'
+>>>>>>> 8994dac (Save recent changes before rebase)
 import "./index.css"
 import Note from './components/Note'
 import NoteService from "./services/notes"
@@ -20,8 +24,12 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
+<<<<<<< HEAD
 
   const createNoteRef = useRef()
+=======
+  const noteFormRef = useRef()
+>>>>>>> 8994dac (Save recent changes before rebase)
 
   //GET: Fetch notes at first render
   useEffect(() => {
@@ -83,7 +91,11 @@ const App = () => {
 
   //POST: Add notes to server
   const addNote = async (noteObject) => {
+<<<<<<< HEAD
     createNoteRef.current.toggleVisibility()
+=======
+    noteFormRef.current.toggleVisibility()
+>>>>>>> 8994dac (Save recent changes before rebase)
     const returnedNote =  await NoteService.create(noteObject)
     setNotes(notes.concat(returnedNote))
   }
@@ -156,7 +168,11 @@ const App = () => {
       </ul>
       
       {user &&
+<<<<<<< HEAD
         <Toggleable buttonLabel='new note' ref={createNoteRef}>
+=======
+        <Toggleable buttonLabel='new note' ref={noteFormRef}>
+>>>>>>> 8994dac (Save recent changes before rebase)
           <NoteForm createNote={addNote}/>
         </Toggleable>
       }
