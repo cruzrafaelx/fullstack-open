@@ -92,6 +92,13 @@ function App() {
     
     try{
       console.log('Blog created!', user.token)
+
+      if(!title || !author){
+        setError('Title, author, or url cannot be blank!')
+        setTimeout(()=> setError(null), 5000)
+        return
+      }
+
       await BlogService.create({title, author, url})
       setSuccess(`A new blog ${title} by ${author}`)
       
@@ -106,7 +113,18 @@ function App() {
     
     catch(error){
       console.error(error)
-      setError(error)
+
+      let errorMessage = "Something went wrong"
+
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error
+      } 
+      
+      else if (error.message) {
+         errorMessage = error.message
+      }
+
+      setError(errorMessage)
       setTimeout(()=> setError(null), 5000)
     }
   }
