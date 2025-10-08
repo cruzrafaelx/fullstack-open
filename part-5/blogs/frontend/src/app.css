@@ -26,3 +26,12 @@
     color: red;
     background-color: gainsboro;
 }
+
+.container{
+    display: flex;
+    align-items: center;
+}
+
+.container > div{
+    margin-right: 0.3em;
+}

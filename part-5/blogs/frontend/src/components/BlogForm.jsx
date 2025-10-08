@@ -1,8 +1,23 @@
+import { useState } from 'react'
 
-const BlogForm = ({ title, author, url, setTitle, setAuthor, setUrl, handleCreateBlog }) => (
+const BlogForm = ({ handleCreateBlog }) => {
+
+    const [title, setTitle] = useState('')
+    const [author, setAuthor] = useState('')
+    const [url, setUrl] = useState('')
+
+    const addBlog = (event) => {
+        event.preventDefault()
+        handleCreateBlog({title, author, url})
+        setTitle('')
+        setAuthor('')
+        setUrl('')
+    }
+
+    return (
     <div style={{padding: '1em 0'}}>
         <form className='blog-form' 
-              onSubmit={handleCreateBlog}>
+              onSubmit={addBlog}>
             <label>
                 title:
                 <input
@@ -32,6 +47,9 @@ const BlogForm = ({ title, author, url, setTitle, setAuthor, setUrl, handleCreat
             <button type='submit'>create</button>
         </form>
     </div>
-)
+    )
+}
+    
+
 
 export default BlogForm

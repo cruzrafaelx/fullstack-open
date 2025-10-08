@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './app.css'
 import Blog from './components/Blog'
 import BlogService from './services/blogs'
@@ -6,16 +6,12 @@ import LoginService from './services/login'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
-
-
+import Toggleable from './components/Toggleable'
 
 function App() {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [user, setUser] = useState(null)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
@@ -31,6 +27,8 @@ function App() {
     }
     
   }, [])
+  
+  const blogFormRef = useRef()
 
   //Fetch blogs of user
   const fetchBlogs = async () => {
@@ -70,9 +68,8 @@ function App() {
       setError(`${error.response.data.error}`)
       setTimeout(()=>{
         setError(null)
-        setTitle('')
-        setAuthor('')
-        setUrl('')
+        setUsername('')
+        setPassword('')
       }, 5000)
     }
   }
@@ -86,25 +83,21 @@ function App() {
   }
 
   //Handle create blog
-  const handleCreateBlog = async (event) => {
-    event.preventDefault()
+  const handleCreateBlog = async (blogObject) => {
     
+    blogFormRef.current.toggleVisibility()
     
     try{
       console.log('Blog created!', user.token)
 
-      if(!title || !author){
+      if(!blogObject.title || !blogObject.author){
         setError('Title, author, or url cannot be blank!')
         setTimeout(()=> setError(null), 5000)
         return
       }
 
-      await BlogService.create({title, author, url})
-      setSuccess(`A new blog ${title} by ${author}`)
-      
-      setTitle('')
-      setAuthor('')
-      setUrl('')
+      await BlogService.create(blogObject)
+      setSuccess(`A new blog ${blogObject.title} by ${blogObject.author}`)
       
       await fetchBlogs()
       
@@ -130,7 +123,6 @@ function App() {
   }
 
   const loginFormProps = { username, password, setUsername, setPassword, handleLogin}
-  const blogFormProps = { title, author, url, setTitle, setAuthor, setUrl, handleCreateBlog }
   const notificationProps =  { success, error }
   
   //Login form
@@ -146,15 +138,20 @@ function App() {
   ? null
   : blogs.length === 0
     ? <p>No blogs yet</p>
-    : blogs.map(blog => (<Blog 
+    : blogs.map(blog => (
+    <Blog 
     key={blog.id}
     title={blog.title}
-    author={blog.author} />))
+    author={blog.author}
+    url={blog.url}
+    likes={blog.likes}
+    user={user.user}
+    />))
   
   
   //Blog form
   const blogForm = user
-  ? <BlogForm {...blogFormProps}/>
+  ? <BlogForm handleCreateBlog={handleCreateBlog}/>
   : <p>Log in to start creating blogs</p>
 
   return (
@@ -162,7 +159,9 @@ function App() {
       { error || success ? <Notification {...notificationProps}/> : null }
       <h1>Blog List</h1>
       {loginForm}
-      {blogForm}
+      <Toggleable ref={blogFormRef} buttonLabel={'create a blog'}>
+        {blogForm}
+      </Toggleable>
       {blogsList}
     </>
   )

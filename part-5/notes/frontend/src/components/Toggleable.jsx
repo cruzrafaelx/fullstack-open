@@ -1,10 +1,6 @@
 import { useState, useImperativeHandle } from 'react'
 
-<<<<<<< HEAD
-const Toggleable = ({  buttonLabel, children, ref }) =>{
-=======
 const Toggleable = ({ buttonLabel, children, ref }) =>{
->>>>>>> 8994dac (Save recent changes before rebase)
 
     const [visible, setVisible] = useState(false)
 
@@ -15,14 +11,9 @@ const Toggleable = ({ buttonLabel, children, ref }) =>{
         setVisible(!visible)
     }
 
-<<<<<<< HEAD
-    useImperativeHandle(ref, () => {
-        return {toggleVisibility}
-=======
     //Exports toggleVisibility to reference component which is App.jsx
     useImperativeHandle(ref,() =>{
         return { toggleVisibility }
->>>>>>> 8994dac (Save recent changes before rebase)
     })
 
     return(
