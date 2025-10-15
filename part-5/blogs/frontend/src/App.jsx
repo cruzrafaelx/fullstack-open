@@ -32,54 +32,16 @@ function App() {
 
   //Fetch blogs of user
   const fetchBlogs = async () => {
-    console.log('Fetching user blogs from database')
 
     try{
       const initialBlogs = await BlogService.getAll()
-      console.log('promise fulfilled!', initialBlogs)
-      setBlogs(initialBlogs)
+      const sortedBlogs = initialBlogs.sort((a, b) => b.likes - a.likes)
+      setBlogs(sortedBlogs)
     }
 
     catch(error){
       console.error(error.response.data)
     }
-  }
-
-  //Handle login
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
-    try{
-      const userDetails = await LoginService.login({ username, password })
-
-      console.log('Login successful', userDetails)
-      setUser(userDetails)
-      window.localStorage.setItem('loggedUser', JSON.stringify(userDetails))
-      
-      setUsername('')
-      setPassword('')
-
-      BlogService.setToken(userDetails.token)
-      fetchBlogs()
-    }
-
-    catch(error){
-      console.log('Wrong credentials!')
-      setError(`${error.response.data.error}`)
-      setTimeout(()=>{
-        setError(null)
-        setUsername('')
-        setPassword('')
-      }, 5000)
-    }
-  }
-
-  //Handle logout
-  const handleLogout = async (event) => {
-    event.preventDefault()
-    window.localStorage.removeItem('loggedUser')
-    setUser(null)
-    BlogService.setToken(null)
   }
 
   //Handle create blog
@@ -122,6 +84,44 @@ function App() {
     }
   }
 
+  //Handle login
+  const handleLogin = async (event) => {
+    event.preventDefault()
+
+    try{
+      const userDetails = await LoginService.login({ username, password })
+
+      console.log('Login successful', userDetails)
+      setUser(userDetails)
+      window.localStorage.setItem('loggedUser', JSON.stringify(userDetails))
+      
+      setUsername('')
+      setPassword('')
+
+      BlogService.setToken(userDetails.token)
+      fetchBlogs()
+    }
+
+    catch(error){
+      console.log('Wrong credentials!')
+      setError(`${error.response.data.error}`)
+      setTimeout(()=>{
+        setError(null)
+        setUsername('')
+        setPassword('')
+      }, 5000)
+    }
+  }
+
+  //Handle logout
+  const handleLogout = async (event) => {
+    event.preventDefault()
+    window.localStorage.removeItem('loggedUser')
+    setUser(null)
+    BlogService.setToken(null)
+  }
+
+
   const loginFormProps = { username, password, setUsername, setPassword, handleLogin}
   const notificationProps =  { success, error }
   
@@ -141,14 +141,15 @@ function App() {
     : blogs.map(blog => (
     <Blog 
     key={blog.id}
+    id={blog.id}
     title={blog.title}
     author={blog.author}
     url={blog.url}
     likes={blog.likes}
     user={user.user}
+    fetchBlogs={fetchBlogs}
     />))
-  
-  
+
   //Blog form
   const blogForm = user
   ? <BlogForm handleCreateBlog={handleCreateBlog}/>

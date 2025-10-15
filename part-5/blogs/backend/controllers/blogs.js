@@ -54,4 +54,31 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   response.status(204).end()
 })
 
+//PUT: increase like
+blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
+  console.log("Put request")
+  const blogId = request.params.id
+  const existingBlog = await Blog.findById(blogId)
+  const userObject = request.user
+
+  if (existingBlog.user._id.toString() !== userObject._id.toString()) {
+    return response.status(401).json({ error: 'Unauthorized' })
+  }
+
+  const newBlogData = request.body
+
+  const updatedBlog = await Blog.findByIdAndUpdate(blogId, newBlogData, {
+    new: true, //make sure mongoose returns the new updated blog
+    runValidators: true, //make sure scheme check is done
+  })
+
+  console.log(updatedBlog)
+
+  if(!updatedBlog){
+    return response.status(404).json({ error: "Blog not found" })
+  }
+
+  response.status(200).json(updatedBlog)
+})
+
 module.exports = blogsRouter
