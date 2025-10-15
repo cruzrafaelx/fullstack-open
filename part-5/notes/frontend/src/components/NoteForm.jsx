@@ -2,6 +2,7 @@
 import { useState } from 'react'
 
 const NoteForm = ({ createNote }) => {
+  
   const [newNote, setNewNote] = useState(
       'a new note...'
     ) 
